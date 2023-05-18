@@ -33,19 +33,45 @@ app.use(cors());
 app.use("/assets", express.static(path.join(__dirname, "public/assets")));
 
 /* FILE STORAGE */
+
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
+  destination: (req, file, cb) => {
     cb(null, "public/assets");
   },
-  filename: function (req, file, cb) {
-    cb(null, file.originalname);
+  filename: (req, file, cb) => {
+    console.log(file);
+    cb(
+      null,
+      `${file.originalname.split(".")[0]}.${file.mimetype.split("/")[1]}`
+    );
   },
 });
-const upload = multer({ storage });
+
+const upload = multer({ storage: storage });
+
+function uploadImage(req, res, next) {
+  upload.single("picture")(req, res, (err) => {
+    if (err) {
+      return next(err);
+    }
+    // req.body.image = req.file.path;
+    // next();
+
+    // Check if 'req.file' is undefined, indicating no file was uploaded
+    if (!req.file) {
+      console.log("No image provided. Skipping image upload.");
+      return next();
+    }
+
+    // Set the uploaded image file path to 'req.body.image'
+    req.body.picturePath = req.file.path;
+    next();
+  });
+}
 
 /* ROUTES WITH FILES */
-app.post("/auth/register", upload.single("picture"), register);
-app.post("/posts", verifyToken, upload.single("picture"), createPost);
+app.post("/auth/register", uploadImage, register);
+app.post("/posts", verifyToken, uploadImage, createPost);
 
 /* ROUTES */
 app.use("/auth", authRoutes);
