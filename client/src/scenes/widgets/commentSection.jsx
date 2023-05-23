@@ -3,7 +3,7 @@ import { Typography, TextField, Button } from "@mui/material";
 import { useDispatch } from "react-redux";
 
 import { commentPost } from "../../actions/posts";
-import classes from "./styles.module.css";
+
 
 const CommentSection = ({ comments }) => {
  

@@ -2,9 +2,17 @@ import {
   ChatBubbleOutlineOutlined,
   FavoriteBorderOutlined,
   FavoriteOutlined,
+  Send,
   ShareOutlined,
 } from "@mui/icons-material";
-import { Box, Divider, IconButton, Typography, useTheme } from "@mui/material";
+import {
+  Box,
+  Divider,
+  IconButton,
+  Input,
+  Typography,
+  useTheme,
+} from "@mui/material";
 import FlexBetween from "components/FlexBetween";
 import Friend from "components/Friend";
 import WidgetWrapper from "components/WidgetWrapper";
@@ -24,6 +32,7 @@ const PostWidget = ({
   comments,
 }) => {
   const [isComments, setIsComments] = useState(false);
+  const [Comment, setComment] = useState("");
   const dispatch = useDispatch();
   const token = useSelector((state) => state.token);
   const loggedInUserId = useSelector((state) => state.user._id);
@@ -45,6 +54,22 @@ const PostWidget = ({
     });
     const updatedPost = await response.json();
     dispatch(setPost({ post: updatedPost }));
+  };
+  const postComment = async () => {
+    const response = await fetch(
+      `http://localhost:6001/posts/${postId}/commentPost`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ value: Comment }),
+      }
+    );
+    const updatedPost = await response.json();
+    dispatch(setPost({ post: updatedPost }));
+    setComment("");
   };
 
   return (
@@ -72,7 +97,7 @@ const PostWidget = ({
           <FlexBetween gap="0.3rem">
             <IconButton onClick={patchLike}>
               {isLiked ? (
-                <FavoriteOutlined sx={{ color: primary }} />
+                <FavoriteOutlined sx={{ color:'red' }} />
               ) : (
                 <FavoriteBorderOutlined />
               )}
@@ -85,6 +110,25 @@ const PostWidget = ({
               <ChatBubbleOutlineOutlined />
             </IconButton>
             <Typography>{comments.length}</Typography>
+
+            <Input
+              value={Comment}
+              onChange={(e) => setComment(e.target.value)}
+            />
+            {Comment.length > 0 ? (
+              <Send
+                style={{ marginTop: "10px" }}
+                fullWidth
+                disabled={!Comment.length}
+                color="primary"
+                variant="contained"
+                onClick={postComment}
+              >
+                Comment
+              </Send>
+            ) : (
+              ""
+            )}
           </FlexBetween>
         </FlexBetween>
 

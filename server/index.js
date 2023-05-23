@@ -40,10 +40,9 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     console.log(file);
-    cb(
-      null,
-      `${file.originalname.split(".")[0]}.${file.mimetype.split("/")[1]}`
-    );
+    const fileName = file.originalname.split(".")[0]; // Extract the name without extension
+    // Extract the file extension
+    cb(null, `${fileName}`);
   },
 });
 
@@ -64,7 +63,8 @@ function uploadImage(req, res, next) {
     }
 
     // Set the uploaded image file path to 'req.body.image'
-    req.body.picturePath = req.file.path;
+    console.log(req.file.path);
+    req.body.picturePath = req.file.originalname;
     next();
   });
 }
